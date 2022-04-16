@@ -1,0 +1,27 @@
+%{
+    GUASS ELIMINATION
+    Ax = B
+%}
+
+A = [1 1 1; 2 1 3; 3 4 -2];
+b = [4; 7; 9];
+
+% Get Argumented Matrix
+Ab = [A, b];
+
+%% Guass Elimination
+% Row_j = Row_j - alpha(i,j)Row_i
+% alpha(i,j) = A(j,i) / A(i,i)
+
+% A(1,1) as pivot element
+alpha = A(2,1) / A(1,1);
+Ab(2, :) = Ab(2, :) - alpha*Ab(1, :); % R2 = R2 - alpha*R1
+
+alpha = A(3,1) / A(1,1);
+Ab(3, :) = Ab(3, :) - alpha*Ab(1, :);
+
+% A(2,2) as pivot element
+alpha = A(3,2) / A(2, 2);
+Ab(3, :) = Ab(3, :) - alpha*Ab(2, :);
+
+% A(3,3) as pivot element

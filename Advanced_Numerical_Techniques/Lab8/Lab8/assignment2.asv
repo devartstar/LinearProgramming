@@ -1,0 +1,109 @@
+%{
+    Name : Devjit Choudhury
+    Roll No. : 19MA20014
+    Assignment2
+%}
+
+function assignment2()
+    %% Data provided in the question :-
+    % Interval boundaries
+    x0 = 0; xn = 2;
+    t0 = 0; tn = 1;
+    
+    % space step size
+    xh=2/10;
+
+    % time step size
+    th=1/1000;
+
+    % U_t = C * U_xx
+    C=1;
+ 
+    % calculating the number of steps
+    n = (xn - x0)/xh - 1;
+
+    p =th*C/(2*xh^2);
+
+    uprev=ft0(x0,xn,xh);%give t0 here
+    mesh=[uprev];
+    for t=t0+th:th:tn
+        %A,B is the system, A is the tri diagonal system
+        A=zeros(n+2,n+2);
+        B=zeros(n+2,1);
+        A(1,1)=2*xh+1;
+        A(1,2)=-1;
+        B(1)=0;
+        A(n+2,n+2)=1+2*xh;
+        A(n+2,n+1)=-1;
+        B(n+2)=0;
+
+        i=2;
+        for x=x0+xh:xh:xn-xh
+            B(i)=uprev(i)+p*(uprev(i+1)-2*uprev(i)+uprev(i-1));
+            A(i,i)=1+2*p;
+            A(i,i-1)=-p;
+            A(i,i+1)=-p;
+            i=i+1;
+        end
+        y=thomasAlgorithm(A,B);
+        uprev=[y'];
+        mesh=[mesh;uprev];
+    end
+    xs=[mesh(1+0.003/th,:);mesh(1+0.036/th,:);mesh(1+0.054/th,:);mesh(1+0.081/th,:)];
+    
+    subplot(2,1,1);
+    for i=1:4
+        plot([x0:xh:xn],xs(i,:));
+        hold on
+    end
+    title('x values at given time points')
+    legend('t=0.003','t=0.036','t=0.054','t=0.081');
+    hold off;
+    
+    subplot(2,1,2);
+    [X,Y]=meshgrid(0:xh:2,0:th:1);
+    surf(X,Y,mesh);
+    colormap("default")
+    shading interp
+    title('Temperature distribution')
+    
+end
+
+%using the standard thomas algorithm code to solve the 
+%tri diagonal system
+function y=thomasAlgorithm(A,B)
+    
+    [rows,~]=size(A);
+    
+    C=zeros(1,rows);
+    D=zeros(1,rows);
+    
+    C(1)=A(1,2)/A(1,1);
+    D(1)=B(1)/A(1,1);
+    
+    for i = 2:rows
+        if i~=rows
+            C(i)=A(i,i+1)/(A(i,i)-A(i,i-1)*C(i-1));
+        end
+        D(i)=(B(i)-A(i,i-1)*D(i-1))/(A(i,i)-A(i,i-1)*C(i-1));
+    end
+    y=zeros(rows,1);
+    y(rows)=D(rows);
+    
+    for i = rows-1:-1:1
+        y(i)=D(i)-C(i)*y(i+1);
+    end
+end
+
+function x0=f0(x,t)
+    x0=0;
+end
+
+function xn=fn(x,t)
+    xn=0;
+end
+
+function t0=ft0(x0,xn,xh)
+    xs=[x0:xh:xn];
+    t0=xs-xs+1;
+end
